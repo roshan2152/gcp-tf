@@ -1,53 +1,30 @@
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = ">= 4.0"    # adjust if you need newer
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.0"
-    }
-  }
+
+# 🔎 Lookup existing VPC by name
+data "google_compute_network" "vpc" {
+  name = var.vpc_name
 }
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
+# 🔎 Lookup private subnets in the region
+data "google_compute_subnetwork" "private" {
+  for_each = toset(var.private_subnet_names)
+
+  name   = each.key
+  region = var.region
 }
 
-# VPC module (assumes you already have modules/vpc from earlier)
-module "vpc" {
-  source   = "./modules/vpc"
-  vpc_name = var.vpc_name
-  region   = var.region
-
-  public_subnets  = var.public_subnets
-  private_subnets = var.private_subnets
-  intra_subnets   = var.intra_subnets
-}
-
-# GKE module
 module "gke" {
-  source = "./modules/gke"
+  source = "./modules/"
 
   project_id = var.project_id
   name       = var.cluster_name
   region     = var.region
 
-  # supply the private subnet self-links from vpc module
-  private_subnet_self_links = values(module.vpc.private_subnets) # list of self_links
-  public_subnet_self_links  = values(module.vpc.public_subnets)
+  vpc_self_link             = data.google_compute_network.vpc.self_link
+  private_subnet_self_links = [for s in data.google_compute_subnetwork.private : s.self_link]
+  # private_subnet_self_links = [values(data.google_compute_subnetwork.private)[0].self_link]
+
 
   node_machine_type = var.node_machine_type
   node_min_count    = var.node_min_count
   node_max_count    = var.node_max_count
-}
-
-# Reserve a global static IP for external HTTP(S) load balancer frontend
-resource "google_compute_global_address" "lb_static_ip" {
-  name = "${var.cluster_name}-lb-ip"
-  project = var.project_id
-  description = "Static IP for HTTP(S) Load Balancer frontend"
-  ip_version = "IPV4"
 }

@@ -1,6 +1,6 @@
 resource "google_container_cluster" "primary" {
   name     = var.name
-  location = var.region        # Regional cluster
+  location = var.region
   project  = var.project_id
 
   # VPC and Subnet
@@ -42,6 +42,11 @@ resource "google_container_node_pool" "default" {
   node_config {
     machine_type = var.node_machine_type
     oauth_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+    
+    boot_disk {
+      size_gb  = 10
+      disk_type = "pd-standard"
+    }
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -53,6 +58,7 @@ resource "google_container_node_pool" "default" {
   autoscaling {
     min_node_count = var.node_min_count
     max_node_count = var.node_max_count
+  
   }
 
   management {

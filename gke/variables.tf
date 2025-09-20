@@ -1,56 +1,45 @@
 variable "project_id" {
   description = "GCP Project ID"
   type        = string
+  default = "app-1-472704"
 }
 
 variable "region" {
   description = "Region for resources"
   type        = string
-  default     = "us-central1"
+  default     = "asia-south1"
 }
 
 variable "vpc_name" {
-  description = "Name of the VPC"
+  description = "Existing VPC name"
   type        = string
   default     = "gke-vpc"
 }
 
+variable "private_subnet_names" {
+  description = "List of existing private subnet names in the region"
+  type        = list(string)
+  default     = ["gke-vpc-private-0", "gke-vpc-private-1", "gke-vpc-private-2"]
+}
+
 variable "cluster_name" {
-  description = "Name of the GKE cluster"
+  description = "Cluster name"
   type        = string
   default     = "gke-cluster"
 }
 
 variable "node_machine_type" {
-  description = "Machine type for nodes"
+  description = "Node machine type"
   type        = string
-  default     = "e2-medium"
+  default     = "e2-micro"
 }
 
 variable "node_min_count" {
-  description = "Min nodes in the pool"
-  type        = number
-  default     = 1
+  type    = number
+  default = 1
 }
 
 variable "node_max_count" {
-  description = "Max nodes in the pool"
-  type        = number
-  default     = 3
-}
-
-# Subnet maps for your 3-tier VPC
-variable "public_subnets" {
-  description = "Map of public subnet CIDRs"
-  type        = map(string)
-}
-
-variable "private_subnets" {
-  description = "Map of private subnet CIDRs"
-  type        = map(string)
-}
-
-variable "intra_subnets" {
-  description = "Map of intra subnet CIDRs"
-  type        = map(string)
+  type    = number
+  default = 1
 }
