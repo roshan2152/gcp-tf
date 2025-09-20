@@ -3,6 +3,15 @@ variable "project_id" {
   type        = string
 }
 
+variable "private_subnet_self_links" {
+  description = "The self_link of the subnetwork to use for the GKE cluster."
+  type        = string
+}
+
+variable "zone" {
+  description = "The zone to deploy the GKE cluster in."
+  type        = string
+}
 variable "name" {
   description = "Cluster name"
   type        = string
@@ -18,10 +27,10 @@ variable "vpc_self_link" {
   type        = string
 }
 
-variable "private_subnet_self_links" {
-  description = "List of private subnet self_links"
-  type        = list(string)
-}
+# variable "private_subnet_self_links" {
+#   description = "List of private subnet self_links"
+#   type        = list(string)
+# }
 
 variable "node_machine_type" {
   description = "Machine type for nodes"
